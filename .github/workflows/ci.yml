@@ -11,30 +11,9 @@ jobs:
 
     steps:
       - name: Trigger Jenkins Build
-        id: jenkins
-        uses: appleboy/jenkins-action@v1.0.0
+        uses: microsoft/jenkins-pipeline-action@v1.0.0
         with:
-          jenkins_url: ${{ secrets.JENKINS_URL }}
-          jenkins_user: ${{ secrets.JENKINS_USER }}
-          jenkins_token: ${{ secrets.JENKINS_TOKEN }}
-          job: "YOUR_JENKINS_JOB_NAME"
-          token: "YOUR_JENKINS_JOB_TOKEN"
-
-      - name: Merge Pull Request
-        if: success()
-        uses: actions/github-script@v3
-        with:
-          script: |
-            const { data: pullRequest } = await github.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-            });
-
-            if (pullRequest.state === 'open' && pullRequest.mergeable) {
-              await github.pulls.merge({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pullRequest.number,
-              });
-            }
+          jenkins-url: ${{ secrets.JENKINS_URL }}
+          job-name: ${{ secrets.JENKINS_JOB_NAME }}
+          user: ${{ secrets.JENKINS_USER }}
+          token: ${{ secrets.JENKINS_TOKEN }}
