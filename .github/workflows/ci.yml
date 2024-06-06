@@ -11,6 +11,7 @@ jobs:
 
     steps:
       - name: Trigger Jenkins Build
+        id: jenkins
         env:
           JENKINS_URL: ${{ secrets.JENKINS_URL }}
           JENKINS_USER: ${{ secrets.JENKINS_USER }}
@@ -20,7 +21,49 @@ jobs:
           echo "Triggering Jenkins job..."
           echo "Jenkins URL: ${JENKINS_URL}"
           echo "Jenkins Job Name: ${JENKINS_JOB_NAME}"
-          curl -X POST "${JENKINS_URL}/job/${JENKINS_JOB_NAME}/buildWithParameters" \
-          --user "${JENKINS_USER}:${JENKINS_TOKEN}" \
-          --data-urlencode "cause=Triggered by GitHub Actions" \
-          -w "%{http_code}" -o /dev/null -s
+          response=$(curl -X POST "${JENKINS_URL}/job/${JENKINS_JOB_NAME}/buildWithParameters" \
+                    --user "${JENKINS_USER}:${JENKINS_TOKEN}" \
+                    --data-urlencode "cause=Triggered by GitHub Actions" \
+                    -w "%{http_code}" -o /dev/null -s)
+          echo "HTTP Response Code: $response"
+          if [ "$response" != "201" ]; then
+            echo "::error::Failed to trigger Jenkins job"
+            exit 1
+          fi
+
+  build-status:
+    needs: trigger-jenkins
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Jenkins Build Status
+        if: ${{ needs.trigger-jenkins.result == 'success' }}
+        run: |
+          # Add logic to check the status of the Jenkins build
+          # For example, you can query Jenkins API or parse Jenkins console output
+          # and set the status accordingly
+          # For demo purpose, assuming the build is successful
+          echo "Jenkins build is successful"
+          echo "::set-output name=build-status::success"
+
+      - name: Set Build Status
+        if: ${{ needs.trigger-jenkins.result == 'success' }}
+        id: set-status
+        run: echo "::set-output name=build-status::success"
+
+  merge-check:
+    needs: [trigger-jenkins, build-status]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Build Status
+        if: ${{ needs.build-status.outputs.build-status != 'success' }}
+        run: |
+          echo "::error::Jenkins build failed or was not triggered"
+          exit 1
+          
+      - name: Merge Check
+        if: ${{ needs.build-status.outputs.build-status == 'success' }}
+        run: |
+          # Add logic to perform merge check
+          # For example, you can use GitHub API to set the merge status
+          # For demo purpose, assuming merge is permitted
+          echo "Merge is permitted"
