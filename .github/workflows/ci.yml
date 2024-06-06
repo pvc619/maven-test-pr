@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  trigger-jenkins:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Jenkins Build
+        uses: appleboy/jenkins-action@v1.0.0
+        with:
+          jenkins_url: ${{ secrets.JENKINS_URL }}
+          jenkins_user: ${{ secrets.JENKINS_USER }}
+          jenkins_token: ${{ secrets.JENKINS_TOKEN }}
+          job: "YOUR_JENKINS_JOB_NAME"
+          token: "YOUR_JENKINS_JOB_TOKEN"
