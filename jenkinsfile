@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                currentBuild.result = 'SUCCESS'
+                def pr = pullRequest()
+                if (pr) {
+                    mergePR(pr)
+                }
+            }
+        }
+        failure {
+            script {
+                currentBuild.result = 'FAILURE'
+            }
+        }
+    }
+}
+
+def pullRequest() {
+    def changeUrl = env.CHANGE_URL
+    if (changeUrl) {
+        return changeUrl.split('/')[-1]
+    }
+    return null
+}
+
+def mergePR(pr) {
+    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+        sh """
+            curl -H "Authorization: token ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -X PUT \
+            https://api.github.com/repos/${env.GITHUB_REPOSITORY}/pulls/${pr}/merge
+        """
+    }
+}
