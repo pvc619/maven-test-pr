@@ -11,9 +11,12 @@ jobs:
 
     steps:
       - name: Trigger Jenkins Build
-        uses: microsoft/jenkins-pipeline-action@v1.0.0
-        with:
-          jenkins-url: ${{ secrets.JENKINS_URL }}
-          job-name: ${{ secrets.JENKINS_JOB_NAME }}
-          user: ${{ secrets.JENKINS_USER }}
-          token: ${{ secrets.JENKINS_TOKEN }}
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+          JENKINS_USER: ${{ secrets.JENKINS_USER }}
+          JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
+          JENKINS_JOB_NAME: ${{ secrets.JENKINS_JOB_NAME }}
+        run: |
+          curl -X POST "${JENKINS_URL}/job/${JENKINS_JOB_NAME}/buildWithParameters" \
+          --user "${JENKINS_USER}:${JENKINS_TOKEN}" \
+          --data-urlencode "cause=Triggered by GitHub Actions"
