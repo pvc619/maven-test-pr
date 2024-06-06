@@ -17,6 +17,10 @@ jobs:
           JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
           JENKINS_JOB_NAME: ${{ secrets.JENKINS_JOB_NAME }}
         run: |
+          echo "Triggering Jenkins job..."
+          echo "Jenkins URL: ${JENKINS_URL}"
+          echo "Jenkins Job Name: ${JENKINS_JOB_NAME}"
           curl -X POST "${JENKINS_URL}/job/${JENKINS_JOB_NAME}/buildWithParameters" \
           --user "${JENKINS_USER}:${JENKINS_TOKEN}" \
-          --data-urlencode "cause=Triggered by GitHub Actions"
+          --data-urlencode "cause=Triggered by GitHub Actions" \
+          -w "%{http_code}" -o /dev/null -s
