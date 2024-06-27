@@ -1,0 +1,13 @@
+[my_servers]
+admin   ansible_host=192.168.18.69
+dataservice ansible_host=192.168.18.67
+webserver   ansible_host=192.168.18.72
+postgres    ansible_host=192.168.18.68
+keycloak    ansible_host=192.168.18.70
+metashape_166   ansible_host=10.52.81.166
+metashape_167   ansible_host=10.52.81.167
+jobscheduler    ansible_host=192.168.18.74
+uploaderserver  ansible_host=192.168.18.71
+contentserver   ansible_host=192.168.18.73
+nfsserver   ansible_host=192.168.18.66
+geoserver ansible_host=192.168.18.75
